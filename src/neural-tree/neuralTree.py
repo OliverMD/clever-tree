@@ -1,14 +1,12 @@
 __author__ = 'oliver'
-import numpy.random as num
 import random
 import copy
-import matplotlib.pyplot as mpl
 import numpy.random as npr
 class FunctionWrapper:
     """
     Wraps a function in a useful object.
     """
-    def __init__(self, name, function, argNum):
+    def __init__(self, name, function, argNum, var = False):
         """
         Creates a FunctionWrapper object.
         :param name: The name of the function
@@ -19,6 +17,15 @@ class FunctionWrapper:
         self.name = name
         self.function = function
         self.argNum = argNum
+        if var == False:
+            self.var = False
+        else:
+            self.var = True
+    def getArgNum(self):
+        if self.var:
+            return random.randint(1,self.argNum)
+        else:
+            return self.argNum
 
 class FunctionNode:
     """
@@ -89,9 +96,10 @@ class Tester:
         self.fitnessFunc = fitnessFunction
         self.testData = testdata
         self.functions = functions
-        self.mutationRate = 0.5
+        self.mutationRate = 0.9
         self.treeMutationRate = 0.8
-        self.breedRate = 0.5
+        self.data = []
+        self.breedRate = 0.8
         self.inputSize = inputSize
         self.population = [self.makeRandomTree(0.4, 0.4) for x in range(popSize)]
         self.bestFitness = 0
@@ -99,7 +107,7 @@ class Tester:
     def makeRandomTree(self, functionProb, paramProb, maxDepth = 10):
         if random.random() < 0.3 and maxDepth > 0:
             func = random.choice(self.functions)
-            children = [self.makeRandomTree(functionProb, paramProb, maxDepth) for i in range(func.argNum)]
+            children = [self.makeRandomTree(functionProb, paramProb, maxDepth) for i in range(func.getArgNum())]
             return FunctionNode(func,children)
         elif random.random() < paramProb and self.inputSize > 0:
             return ParameterNode(random.randint(0,self.inputSize - 1))
@@ -136,57 +144,11 @@ class Tester:
             scores = self._rankFunction(self.population)
             newpop = [scores[0][1], scores[1][1]]
             self.bestFitness = scores[0][0]
+            if self.data != None:
+                self.data.append(self.bestFitness)
             while len(newpop) < len(self.population):
                 if random.random() < 0.5:
                     newpop.append(self.crossover(self.population[int(npr.beta(1,2) * (len(self.population) - 1))], self.population[int(npr.beta(1,2) * (len(self.population) - 1))]))
                 else:
                     newpop.append(self.mutateTree(self.crossover(self.population[int(npr.beta(1,2) * (len(self.population) - 1))], self.population[int(npr.beta(1,2) * (len(self.population) - 1))])))
             self.population = newpop
-
-def testDistribution(n):
-    data = [int(x*100) for x in npr.beta(1,2)]
-    mpl.hist(data, bins=20)
-    mpl.show()
-
-def iffunc(l):
-    if l[0] > 0:
-        return l[1]
-    else:
-        return l[2]
-
-def isgreater(l):
-    if l[0] > l[1]:
-        return 1
-    else:
-        return 0
-
-def div(l):
-    if (l[1] == 0):
-        return 0
-    else:
-        return l[0] / l[1]
-
-def mod(l):
-    if l[1] == 0:
-        return 0
-    else:
-        return l[0] % l[1]
-
-def cmpa(l):
-    if l[0] == l[1]:
-        return 1
-    else:
-        return 0
-
-addw = FunctionWrapper("Add", lambda l: l[0] + l[1],2)
-subw = FunctionWrapper("Subtract", lambda l: l[0] - l[1], 2)
-mulw = FunctionWrapper("Multiply", lambda l: l[0] * l[1], 2)
-divw = FunctionWrapper("Divide", div, 2)
-ifw = FunctionWrapper("If...Then...Else...", iffunc, 3)
-igtw = FunctionWrapper("Is...>...", isgreater, 2)
-modw = FunctionWrapper("Modulo", mod, 2)
-cmpaw = FunctionWrapper("Compare", cmpa, 2)
-
-arithFunctions = [addw, subw, mulw, divw, modw]
-logicFunctions = [ifw, igtw, cmpaw]
-
