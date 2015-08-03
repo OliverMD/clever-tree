@@ -15,10 +15,6 @@ with each tuple as a different test.
 
 Please look at the tests to identify how to use it.
 
-### As a neural network
-
-I'm still yet to implement this functionality
-
 ## Tests
 
 ### Test1 and Test2
