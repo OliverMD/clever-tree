@@ -22,8 +22,3 @@ These are some really tests that try to eveolve a program that generates the fib
 Test1 doesn't accomplish this but Test2 does and shows the difference between a good and bad fitness
 function.
 
-## Plans
-1. Allow for what all intents and purposes is a neural network to be evolved.
-2. Implement a back propagation algorithm for such a use.
-3. Run some tests and see wht interesting things it can be used for.
-4. I may port this to a more efficient language in the future.
